@@ -3,7 +3,7 @@
 
 void foo() { // try i < 999
   std::cout << "in foo() ..." << std::endl;
-  for (int i = 0; i < 500000; ++i) {}
+  for (int i = 0; i < 100; ++i) {}
   std::cout << "out foo() ..." << std::endl;
 }
 
