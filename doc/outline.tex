@@ -55,40 +55,18 @@
   \begin{flushright} 
     {\LARGE\@title} 
 
-    \vspace{20pt} 
+    \vspace{50pt} 
 
     {\large\@author}
     \\\@date
 
-    \vspace{30pt}
+    \vspace{40pt}
   \end{flushright}
 }
 
-\title{Chat Room Project}
+\title{Parallelism and Concurrency: An Introduction}
 \author{Ryan H. and Eric S.}
 
 \begin{document}
 \maketitle
-This project, from a high-level point-of-view, is an application that allows users to create chat rooms with each other. They can chat with others in their respective room through a text-based "terminal" display.
-
-The details:
-\begin{enumerate}
-  \item Coded in C++ with Qt's libraries/APIs. % need to study this
-  \item UI resembles a terminal
-  \item User account creation/verification
-  \item Chat room creation/joining/leaving
-  \item Messages
-
-    Attributes include: person sending it, chat room sent to, time stamp, and a string containing message content.
-
-  \item Utilizes network programming % need to study this
-
-    Users can join/leave a server. This is how the chat room is made possible (communication among multiple computers). A server will maintain all currently connected users.
-
-  \item Utilizes parallelism/concurrency
-
-    A thread pool will handle the many requests to the server by executing tasks in parallel through multiple threads of control. For example, if two chat rooms are active at the same time, they should be operating simultaneously, especially since there data and interfaces are conflicting with each other.
-
-  \item includes chat history
-\end{enumerate}
 \end{document}
