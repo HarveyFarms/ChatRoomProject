@@ -81,6 +81,10 @@ The details:
 
     Attributes include: person sending it, chat room sent to, time stamp, and a string containing message content.
 
+  \item Utilizes OO structure
+
+    Users, messages, and chat rooms will all have their respective classes, inheriting and being the parent to other specific classes like a Moderator class.
+
   \item Utilizes network programming % need to study this
 
     Users can join/leave a server. This is how the chat room is made possible (communication among multiple computers). A server will maintain all currently connected users.
@@ -90,5 +94,9 @@ The details:
     A thread pool will handle the many requests to the server by executing tasks in parallel through multiple threads of control. For example, if two chat rooms are active at the same time, they should be operating simultaneously, especially since there data and interfaces are conflicting with each other.
 
   \item includes chat history
+
+    Will store data in (?) (DB or file or in server)
+
+  \item includes message search
 \end{enumerate}
 \end{document}
