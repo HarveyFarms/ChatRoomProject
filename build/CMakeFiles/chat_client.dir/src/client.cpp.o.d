@@ -1,5 +1,5 @@
 CMakeFiles/chat_client.dir/src/client.cpp.o: \
- /home/student/chatroom-starter/src/client.cpp /usr/include/stdc-predef.h \
+ /home/student/ChatRoomProject/src/client.cpp /usr/include/stdc-predef.h \
  /usr/include/qt6/QtWidgets/QApplication \
  /usr/include/qt6/QtWidgets/qapplication.h \
  /usr/include/qt6/QtWidgets/qtwidgetsglobal.h \

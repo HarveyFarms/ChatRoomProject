@@ -1,5 +1,5 @@
 CMakeFiles/chat_server.dir/src/server.cpp.o: \
- /home/student/chatroom-starter/src/server.cpp /usr/include/stdc-predef.h \
+ /home/student/ChatRoomProject/src/server.cpp /usr/include/stdc-predef.h \
  /usr/include/qt6/QtCore/QCoreApplication \
  /usr/include/qt6/QtCore/qcoreapplication.h \
  /usr/include/qt6/QtCore/qglobal.h /usr/include/c++/15/type_traits \

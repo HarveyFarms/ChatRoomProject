@@ -1,4 +1,4 @@
-/home/student/chatroom-starter/build/CMakeFiles/chat_server.dir
-/home/student/chatroom-starter/build/CMakeFiles/chat_client.dir
-/home/student/chatroom-starter/build/CMakeFiles/edit_cache.dir
-/home/student/chatroom-starter/build/CMakeFiles/rebuild_cache.dir
+/home/student/ChatRoomProject/build/CMakeFiles/chat_server.dir
+/home/student/ChatRoomProject/build/CMakeFiles/chat_client.dir
+/home/student/ChatRoomProject/build/CMakeFiles/edit_cache.dir
+/home/student/ChatRoomProject/build/CMakeFiles/rebuild_cache.dir

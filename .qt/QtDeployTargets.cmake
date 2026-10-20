@@ -1,0 +1,4 @@
+set(__QT_DEPLOY_TARGET_chat_server_FILE /home/student/ChatRoomProject/chat_server)
+set(__QT_DEPLOY_TARGET_chat_server_TYPE EXECUTABLE)
+set(__QT_DEPLOY_TARGET_chat_client_FILE /home/student/ChatRoomProject/chat_client)
+set(__QT_DEPLOY_TARGET_chat_client_TYPE EXECUTABLE)

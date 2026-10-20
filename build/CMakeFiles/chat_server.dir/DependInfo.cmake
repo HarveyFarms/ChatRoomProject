@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/student/chatroom-starter/src/server.cpp" "CMakeFiles/chat_server.dir/src/server.cpp.o" "gcc" "CMakeFiles/chat_server.dir/src/server.cpp.o.d"
+  "/home/student/ChatRoomProject/src/server.cpp" "CMakeFiles/chat_server.dir/src/server.cpp.o" "gcc" "CMakeFiles/chat_server.dir/src/server.cpp.o.d"
   "" "chat_server" "gcc" "CMakeFiles/chat_server.dir/link.d"
   )
 

@@ -54,10 +54,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/student/chatroom-starter
+CMAKE_SOURCE_DIR = /home/student/ChatRoomProject
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/student/chatroom-starter/build
+CMAKE_BINARY_DIR = /home/student/ChatRoomProject/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -88,14 +88,14 @@ clean: CMakeFiles/chat_client.dir/clean
 CMakeFiles/chat_server.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chat_server.dir/build.make CMakeFiles/chat_server.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chat_server.dir/build.make CMakeFiles/chat_server.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/chatroom-starter/build/CMakeFiles --progress-num=3,4 "Built target chat_server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/ChatRoomProject/build/CMakeFiles --progress-num=3,4 "Built target chat_server"
 .PHONY : CMakeFiles/chat_server.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/chat_server.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/chatroom-starter/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/ChatRoomProject/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/chat_server.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/chatroom-starter/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/ChatRoomProject/build/CMakeFiles 0
 .PHONY : CMakeFiles/chat_server.dir/rule
 
 # Convenience name for target.
@@ -105,7 +105,7 @@ chat_server: CMakeFiles/chat_server.dir/rule
 # codegen rule for target.
 CMakeFiles/chat_server.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chat_server.dir/build.make CMakeFiles/chat_server.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/chatroom-starter/build/CMakeFiles --progress-num=3,4 "Finished codegen for target chat_server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/ChatRoomProject/build/CMakeFiles --progress-num=3,4 "Finished codegen for target chat_server"
 .PHONY : CMakeFiles/chat_server.dir/codegen
 
 # clean rule for target.
@@ -120,14 +120,14 @@ CMakeFiles/chat_server.dir/clean:
 CMakeFiles/chat_client.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chat_client.dir/build.make CMakeFiles/chat_client.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chat_client.dir/build.make CMakeFiles/chat_client.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/chatroom-starter/build/CMakeFiles --progress-num=1,2 "Built target chat_client"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/ChatRoomProject/build/CMakeFiles --progress-num=1,2 "Built target chat_client"
 .PHONY : CMakeFiles/chat_client.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/chat_client.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/chatroom-starter/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/ChatRoomProject/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/chat_client.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/chatroom-starter/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/student/ChatRoomProject/build/CMakeFiles 0
 .PHONY : CMakeFiles/chat_client.dir/rule
 
 # Convenience name for target.
@@ -137,7 +137,7 @@ chat_client: CMakeFiles/chat_client.dir/rule
 # codegen rule for target.
 CMakeFiles/chat_client.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chat_client.dir/build.make CMakeFiles/chat_client.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/chatroom-starter/build/CMakeFiles --progress-num=1,2 "Finished codegen for target chat_client"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/student/ChatRoomProject/build/CMakeFiles --progress-num=1,2 "Finished codegen for target chat_client"
 .PHONY : CMakeFiles/chat_client.dir/codegen
 
 # clean rule for target.
