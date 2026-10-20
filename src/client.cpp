@@ -117,8 +117,8 @@ class TerminalWindow : public QWidget {
     input->setMaxLength(2000);
     input->setPlaceholderText("> Type /help or /connect 127.0.0.1 5050 Ryan");
     layout->addWidget(status);
-    layout->addWidget(output, 1);
     layout->addWidget(input);
+    layout->addWidget(output, 1);
     timeout.setSingleShot(true);
     socket.setReadBufferSize(16384);
     connect(input, &QLineEdit::returnPressed, this, [this] { command(); });
