@@ -1,0 +1,356 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="1 Class diagram" id="1-Class-diagram">
+    <mxGraphModel dx="1200" dy="1100" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1200" pageHeight="1100">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Chat Room — Class Diagram | Ryan Harvey" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=24;fontStyle=1;strokeColor=none;fillColor=none;">
+          <mxGeometry as="geometry" x="30" y="20" width="1130" height="50" />
+        </mxCell>
+        <mxCell id="note" value="Scope: Qt terminal-style client and TCP server starter. Reconstructed from our code discussion; attributes are conceptual where exact declarations were unavailable. Accounts, database, and group features are outside this starter diagram. + public; − private; Qt classes shown for context." vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=13;fillColor=#f1f5f9;strokeColor=none;">
+          <mxGeometry as="geometry" x="30" y="80" width="1130" height="75" />
+        </mxCell>
+        <mxCell id="widget" value="«Qt framework»&#10;QWidget" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="60" y="190" width="250" height="70" />
+        </mxCell>
+        <mxCell id="object" value="«Qt framework»&#10;QObject" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="700" y="190" width="250" height="70" />
+        </mxCell>
+        <mxCell id="client" value="TerminalWindow&#10;──────────────────────────&#10;− username : QString&#10;− socket : QTcpSocket&#10;− terminal output / command input / status&#10;──────────────────────────&#10;+ TerminalWindow()&#10;− command()&#10;− receive()&#10;− help()&#10;− print(text)&#10;− send(message)&#10;&#10;Responsibilities:&#10;Parse commands and validate input&#10;Display connection state and messages&#10;Encode/decode newline-delimited JSON" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="40" y="330" width="450" height="410" />
+        </mxCell>
+        <mxCell id="server" value="ChatServer&#10;──────────────────────────&#10;− listener : QTcpServer [conceptual role]&#10;− connected sockets → usernames&#10;──────────────────────────&#10;+ start(...)&#10;− receive(socket)&#10;− handle(socket, message)&#10;− send(socket, message)&#10;− broadcast(message)&#10;− roster()&#10;− announceRoster()&#10;− log(text)&#10;&#10;Responsibilities:&#10;Accept connections and process JSON&#10;Track joined users and broadcast updates" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fillColor=#f0fdf4;">
+          <mxGeometry as="geometry" x="670" y="330" width="450" height="410" />
+        </mxCell>
+        <mxCell id="inherit1" value="" edge="1" parent="1" source="client" target="widget" style="edgeStyle=orthogonalEdgeStyle;html=0;fontSize=12;endArrow=open;labelBackgroundColor=#ffffff;endArrow=block;endFill=0;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="inherit2" value="" edge="1" parent="1" source="server" target="object" style="edgeStyle=orthogonalEdgeStyle;html=0;fontSize=12;endArrow=open;labelBackgroundColor=#ffffff;endArrow=block;endFill=0;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="tcp" value="«Qt framework»&#10;QTcpSocket&#10;────────────────&#10;connectToHost()&#10;write() / readLine()&#10;disconnectFromHost()&#10;connected / readyRead / disconnected" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="40" y="850" width="350" height="200" />
+        </mxCell>
+        <mxCell id="listen" value="«Qt framework»&#10;QTcpServer&#10;────────────────&#10;listen()&#10;nextPendingConnection()&#10;newConnection signal" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;">
+          <mxGeometry as="geometry" x="750" y="850" width="350" height="170" />
+        </mxCell>
+        <mxCell id="has1" value="1 client socket" edge="1" parent="1" source="client" target="tcp" style="edgeStyle=orthogonalEdgeStyle;html=0;fontSize=12;endArrow=open;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="has2" value="1 listener" edge="1" parent="1" source="server" target="listen" style="edgeStyle=orthogonalEdgeStyle;html=0;fontSize=12;endArrow=open;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="has3" value="0..* accepted sockets" edge="1" parent="1" source="server" target="tcp" style="edgeStyle=orthogonalEdgeStyle;html=0;fontSize=12;endArrow=open;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="wire" value="TCP / JSON + newline" edge="1" parent="1" source="client" target="server" style="edgeStyle=orthogonalEdgeStyle;html=0;fontSize=12;endArrow=open;labelBackgroundColor=#ffffff;dashed=1;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="2 Connect sequence" id="2-Connect-sequence">
+    <mxGraphModel dx="1200" dy="1100" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1200" pageHeight="1222">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Connect and Join Server" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=24;fontStyle=1;strokeColor=none;fillColor=none;">
+          <mxGeometry as="geometry" x="30" y="20" width="1130" height="50" />
+        </mxCell>
+        <mxCell id="note" value="Successful path shown. Invalid command → usage message; connection failure → client error/status. TCP connection happens before the application-level join/welcome exchange. Events summarize signal handlers, not separate new methods." vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=13;fillColor=#f1f5f9;strokeColor=none;">
+          <mxGeometry as="geometry" x="30" y="80" width="1130" height="75" />
+        </mxCell>
+        <mxCell id="a0" value="User" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="20" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life0" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="90" y="245" />
+            <mxPoint as="targetPoint" x="90" y="1212" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a1" value="TerminalWindow" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="353" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life1" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="423" y="245" />
+            <mxPoint as="targetPoint" x="423" y="1212" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a2" value="QTcpSocket" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="686" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life2" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="245" />
+            <mxPoint as="targetPoint" x="756" y="1212" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a3" value="ChatServer" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="1019" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life3" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1089" y="245" />
+            <mxPoint as="targetPoint" x="1089" y="1212" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg0" value="/connect HOST PORT NAME" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="90" y="280" />
+            <mxPoint as="targetPoint" x="423" y="280" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg1" value="command(): validate state, port, name" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="308" y="325" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg2" value="connectToHost(HOST, PORT)" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="423" y="404" />
+            <mxPoint as="targetPoint" x="756" y="404" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg3" value="Establish TCP connection" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="466" />
+            <mxPoint as="targetPoint" x="1089" y="466" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg4" value="Accept socket; attach event handlers" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="974" y="511" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg5" value="connected signal" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="590" />
+            <mxPoint as="targetPoint" x="423" y="590" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg6" value="send({type: join, name}) + newline" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="423" y="652" />
+            <mxPoint as="targetPoint" x="756" y="652" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg7" value="Deliver join JSON" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="714" />
+            <mxPoint as="targetPoint" x="1089" y="714" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg8" value="receive(s) → handle(s, message)&#10;Validate and record username" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="974" y="759" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg9" value="welcome JSON + newline" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1089" y="838" />
+            <mxPoint as="targetPoint" x="756" y="838" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg10" value="readyRead → receive()" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="900" />
+            <mxPoint as="targetPoint" x="423" y="900" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg11" value="Display welcome / joined confirmation" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="423" y="962" />
+            <mxPoint as="targetPoint" x="90" y="962" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg12" value="announceRoster() → broadcast users" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="974" y="1007" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg13" value="users JSON + newline" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1089" y="1086" />
+            <mxPoint as="targetPoint" x="756" y="1086" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg14" value="readyRead → receive()" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="1148" />
+            <mxPoint as="targetPoint" x="423" y="1148" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg15" value="Display updated online users" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="423" y="1210" />
+            <mxPoint as="targetPoint" x="90" y="1210" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="3 Chat sequence" id="3-Chat-sequence">
+    <mxGraphModel dx="1200" dy="1100" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1200" pageHeight="900">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Send and Broadcast a Chat Message" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=24;fontStyle=1;strokeColor=none;fillColor=none;">
+          <mxGeometry as="geometry" x="30" y="20" width="1130" height="50" />
+        </mxCell>
+        <mxCell id="note" value="Assumes clients have successfully joined. Wire messages are compact JSON followed by a newline. The server broadcasts to joined clients, including the sender; UI display details are summarized." vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=13;fillColor=#f1f5f9;strokeColor=none;">
+          <mxGeometry as="geometry" x="30" y="80" width="1130" height="75" />
+        </mxCell>
+        <mxCell id="a0" value="Sender client" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="20" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life0" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="90" y="245" />
+            <mxPoint as="targetPoint" x="90" y="778" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a1" value="ChatServer" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="520" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life1" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="590" y="245" />
+            <mxPoint as="targetPoint" x="590" y="778" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a2" value="Other joined clients" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="1020" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life2" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1090" y="245" />
+            <mxPoint as="targetPoint" x="1090" y="778" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg0" value="User types message → command()" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="-25" y="263" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg1" value="send({type: chat, text}) + newline" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="90" y="342" />
+            <mxPoint as="targetPoint" x="590" y="342" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg2" value="readyRead → receive(s)&#10;Parse complete line → handle(s, message)" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="475" y="387" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg3" value="Identify sender; validate text" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="475" y="449" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg4" value="broadcast(chat message with sender)" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="475" y="511" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg5" value="chat JSON + newline" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="590" y="590" />
+            <mxPoint as="targetPoint" x="90" y="590" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg6" value="chat JSON + newline" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="590" y="652" />
+            <mxPoint as="targetPoint" x="1090" y="652" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg7" value="receive() → print(sender + text)" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="-25" y="697" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg8" value="receive() → print(sender + text)" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="975" y="759" width="230" height="44" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="4 Disconnect sequence" id="4-Disconnect-sequence">
+    <mxGraphModel dx="1200" dy="1100" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1200" pageHeight="900">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Disconnect and Update Online Users" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=24;fontStyle=1;strokeColor=none;fillColor=none;">
+          <mxGeometry as="geometry" x="30" y="20" width="1130" height="50" />
+        </mxCell>
+        <mxCell id="note" value="Representative disconnect flow for the starter. Socket errors or closing the client also trigger server cleanup. Unnamed sockets must not remain in the joined-user roster." vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;fontSize=13;fillColor=#f1f5f9;strokeColor=none;">
+          <mxGeometry as="geometry" x="30" y="80" width="1130" height="75" />
+        </mxCell>
+        <mxCell id="a0" value="User" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="20" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life0" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="90" y="245" />
+            <mxPoint as="targetPoint" x="90" y="840" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a1" value="TerminalWindow" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="353" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life1" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="423" y="245" />
+            <mxPoint as="targetPoint" x="423" y="840" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a2" value="ChatServer" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="686" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life2" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="245" />
+            <mxPoint as="targetPoint" x="756" y="840" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="a3" value="Remaining clients" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fillColor=#eff6ff;">
+          <mxGeometry as="geometry" x="1019" y="180" width="140" height="65" />
+        </mxCell>
+        <mxCell id="life3" edge="1" parent="1" style="endArrow=none;dashed=1;strokeColor=#94a3b8;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="1089" y="245" />
+            <mxPoint as="targetPoint" x="1089" y="840" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg0" value="/disconnect" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="90" y="280" />
+            <mxPoint as="targetPoint" x="423" y="280" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg1" value="command() → socket.disconnectFromHost()" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="308" y="325" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg2" value="TCP connection closes" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="423" y="404" />
+            <mxPoint as="targetPoint" x="756" y="404" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg3" value="disconnected signal → update display" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="308" y="449" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg4" value="disconnected handler: remove socket/user" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="641" y="511" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg5" value="Clean up socket; log departure" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="641" y="573" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg6" value="Broadcast departure notice" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="652" />
+            <mxPoint as="targetPoint" x="1089" y="652" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg7" value="announceRoster() → roster()" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="641" y="697" width="230" height="44" />
+        </mxCell>
+        <mxCell id="msg8" value="Broadcast updated users JSON" edge="1" parent="1" style="endArrow=open;html=0;fontSize=13;labelBackgroundColor=#ffffff;">
+          <mxGeometry as="geometry" relative="1">
+            <mxPoint as="sourcePoint" x="756" y="776" />
+            <mxPoint as="targetPoint" x="1089" y="776" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg9" value="receive() → display notice and roster" vertex="1" parent="1" style="whiteSpace=wrap;html=0;align=left;verticalAlign=top;spacing=12;fontSize=14;fillColor=#ffffff;strokeColor=#334155;align=center;verticalAlign=middle;fontSize=12;fillColor=#f8fafc;">
+          <mxGeometry as="geometry" x="974" y="821" width="230" height="44" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
