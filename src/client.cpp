@@ -15,7 +15,7 @@
 class TerminalWindow : public QWidget {
   QTcpSocket socket;
   QTimer timeout;
-  QPlainTextEdit *output;
+  QPlainTextEdit *output; // TODO: save output for future lookup/chat history
   QLineEdit *input;
   QLabel *status;
   QString username;
