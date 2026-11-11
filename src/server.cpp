@@ -1,5 +1,3 @@
-
-
 #include <QCoreApplication>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -11,338 +9,689 @@
 #include <QRegularExpression>
 #include <QTimer>
 #include <QTextStream>
+#include <QStringList>
 
 #include <exception>
 
 #include "Authentication.h"
 #include "User.h"
+#include "Channel.h"
 
-class ChatServer : public QObject {
-  QTcpServer listener;
-  QHash<QTcpSocket*, QString> clients;
-  Authentication authentication;
-  QHash<QTcpSocket*, User*> authenticatedUsers;
+class ChatServer : public QObject
+{
+    QTcpServer listener;
 
-  static constexpr qint64 maxFrame = 8192;
+    QHash<QTcpSocket*, QString> clients;
+    Authentication authentication;
+    QHash<QTcpSocket*, User*> authenticatedUsers;
 
-  void log(const QString &s) {
-    QTextStream(stdout) << s << Qt::endl;
-  }
+    // Channel management
+    QHash<QString, Channel*> channels;
+    QHash<QTcpSocket*, QString> currentChannels;
 
-  void send(QTcpSocket *s, const QJsonObject &message) {
-    if (s->state() != QAbstractSocket::ConnectedState) return;
+    int nextChannelID = 1;
 
-    if (s->bytesToWrite() > 256 * 1024) {
-      s->disconnectFromHost();
-      return;
+    static constexpr qint64 maxFrame = 8192;
+
+    void log(const QString& s)
+    {
+        QTextStream(stdout) << s << Qt::endl;
     }
 
-    s->write(
-        QJsonDocument(message).toJson(QJsonDocument::Compact) + '\n'
-    );
-  }
-
-  void broadcast(const QJsonObject &message) {
-    const auto sockets = clients.keys();
-
-    for (auto *s : sockets) {
-      if (!clients.value(s).isEmpty()) {
-        send(s, message);
-      }
-    }
-  }
-
-  QJsonObject roster() const {
-    QStringList names;
-
-    for (const auto &name : clients) {
-      if (!name.isEmpty()) names.append(name);
-    }
-
-    names.sort(Qt::CaseInsensitive);
-
-    return {
-      {"type", "users"},
-      {"names", QJsonArray::fromStringList(names)}
-    };
-  }
-
-  void announceRoster() {
-    auto r = roster();
-    broadcast(r);
-
-    QStringList names;
-
-    for (const auto &v : r["names"].toArray()) {
-      names.append(v.toString());
-    }
-
-    log(QString("Online (%1): %2")
-        .arg(names.size())
-        .arg(names.join(", ")));
-  }
-
-  void error(QTcpSocket *s, const QString &message) {
-    send(s, {{"type", "error"}, {"text", message}});
-  }
-
-  void handle(QTcpSocket *s, const QJsonObject &m) {
-    const QString type = m["type"].toString();
-
-    // Registration and login are available before authentication.
-    if (!authenticatedUsers.contains(s)) {
-
-      if (type == "register") {
-        QString name = m["username"].toString();
-        QString email = m["email"].toString();
-        QString password = m["password"].toString();
-
-        if (!QRegularExpression(
-                "^[A-Za-z0-9_-]{1,24}$").match(name).hasMatch()) {
-          error(s, "Invalid username.");
-          return;
-        }
-
-        if (email.trimmed().isEmpty() ||
-            password.isEmpty() || password.size() > 1024) {
-          error(s, "Email and password are required.");
-          return;
-        }
-
-        try {
-          User *user = authentication.registerUser(
-              name.toStdString(),
-              email.toStdString(),
-              password.toStdString()
-          );
-
-          if (user == nullptr) {
-            error(s, "Username or email is already registered.");
+    void send(QTcpSocket* s, const QJsonObject& message)
+    {
+        if (s->state() != QAbstractSocket::ConnectedState)
+        {
             return;
-          }
-
-          send(s, {
-              {"type", "notice"},
-              {"text", "Registration successful. Please log in."}
-          });
-
-          log("REGISTER " + name);
-        } catch (const std::exception &e) {
-          log(QString("Registration failed: %1").arg(e.what()));
-          error(s, "Registration failed.");
         }
 
-        return;
-      }
-
-      if (type == "login") {
-        QString name = m["username"].toString();
-        QString password = m["password"].toString();
-
-        if (name.isEmpty() || password.isEmpty() ||
-            password.size() > 1024) {
-          error(s, "Username and password are required.");
-          return;
-        }
-
-        // Find and verify the account before changing its online status.
-        User *candidate =
-            authentication.findUserByUsername(name.toStdString());
-
-        if (candidate == nullptr ||
-            candidate->isBanned() ||
-            !candidate->verifyPassword(password.toStdString())) {
-          error(s, "Invalid username or password.");
-          return;
-        }
-
-        // Do not allow an account to log in from two sockets.
-        for (auto it = authenticatedUsers.cbegin();
-             it != authenticatedUsers.cend(); ++it) {
-          if (it.value() == candidate) {
-            error(s, "This account is already connected.");
+        if (s->bytesToWrite() > 256 * 1024)
+        {
+            s->disconnectFromHost();
             return;
-          }
         }
 
-        // login() verifies the password and marks the account online.
-        User *user = authentication.login(
-            name.toStdString(),
-            password.toStdString()
+        s->write(
+            QJsonDocument(message).toJson(QJsonDocument::Compact)
+            + '\n'
         );
+    }
 
-        if (user == nullptr) {
-          error(s, "Invalid username or password.");
-          return;
+    void broadcast(const QJsonObject& message)
+    {
+        const auto sockets = clients.keys();
+
+        for (auto* s : sockets)
+        {
+            if (!clients.value(s).isEmpty())
+            {
+                send(s, message);
+            }
+        }
+    }
+
+    void error(QTcpSocket* s, const QString& message)
+    {
+        send(s, {
+            {"type", "error"},
+            {"text", message}
+        });
+    }
+
+    QJsonObject roster() const
+    {
+        QStringList names;
+
+        for (const auto& name : clients)
+        {
+            if (!name.isEmpty())
+            {
+                names.append(name);
+            }
         }
 
-        authenticatedUsers.insert(s, user);
-        clients[s] = QString::fromStdString(user->getUsername());
+        names.sort(Qt::CaseInsensitive);
 
-        const QString loggedInName = clients.value(s);
+        return {
+            {"type", "users"},
+            {"names", QJsonArray::fromStringList(names)}
+        };
+    }
+
+    void announceRoster()
+    {
+        auto r = roster();
+        broadcast(r);
+
+        QStringList names;
+
+        for (const auto& v : r["names"].toArray())
+        {
+            names.append(v.toString());
+        }
+
+        log(QString("Online (%1): %2")
+            .arg(names.size())
+            .arg(names.join(", ")));
+    }
+
+        // Find a channel using its name
+    Channel* findChannel(const QString& name) const
+    {
+        return channels.value(name.toLower(), nullptr);
+    }
+
+    // Send available channels to a client
+    void sendChannels(QTcpSocket* s)
+    {
+        QStringList names = channels.keys();
+        names.sort(Qt::CaseInsensitive);
+
+        QJsonArray array;
+
+        for (const QString& name : names)
+        {
+            Channel* channel = channels.value(name);
+
+            if (channel == nullptr)
+            {
+                continue;
+            }
+
+            array.append(QJsonObject{
+                {"id", channel->getChannelID()},
+                {"name", channel->getName()},
+                {"members", channel->getMemberCount()}
+            });
+        }
 
         send(s, {
-            {"type", "welcome"},
-            {"name", loggedInName},
-            {"text", "Login successful. Welcome to the lobby."}
+            {"type", "channels"},
+            {"channels", array}
         });
-
-        broadcast({
-            {"type", "notice"},
-            {"text", loggedInName + " joined the server."}
-        });
-
-        log("LOGIN " + loggedInName +
-            " from " + s->peerAddress().toString());
-
-        announceRoster();
-        return;
-      }
-
-      error(s, "Please register or log in first.");
-      return;
     }
 
-    // The socket is authenticated from this point onward.
-    if (type == "users") {
-      send(s, roster());
-    } else if (type == "chat") {
-      QString message = m["text"].toString().trimmed();
+    // Remove a client from its current channel
+    void leaveCurrentChannel(QTcpSocket* s)
+    {
+        QString channelName = currentChannels.take(s);
 
-      if (message.isEmpty() || message.size() > 2000 ||
-          message.contains('\n') || message.contains('\r')) {
-        error(s, "Send a single line of 1-2000 characters.");
-        return;
-      }
-
-      broadcast({
-          {"type", "chat"},
-          {"name", clients.value(s)},
-          {"text", message}
-      });
-    } else {
-      error(s, "Unknown command.");
-    }
-  }
-
-  void receive(QTcpSocket *s) {
-    while (s->canReadLine()) {
-      QByteArray line = s->readLine(maxFrame + 1);
-
-      if (!line.endsWith('\n') || line.size() > maxFrame) {
-        error(s, "Message too large.");
-        s->disconnectFromHost();
-        return;
-      }
-
-      QJsonParseError parse;
-      auto doc = QJsonDocument::fromJson(line, &parse);
-
-      if (parse.error != QJsonParseError::NoError ||
-          !doc.isObject()) {
-        error(s, "Expected a JSON object.");
-        continue;
-      }
-
-      handle(s, doc.object());
-
-      if (s->state() != QAbstractSocket::ConnectedState) return;
-    }
-
-    if (s->bytesAvailable() >= maxFrame) {
-      error(s, "Message too large.");
-      s->disconnectFromHost();
-    }
-  }
-
-public:
-  ChatServer() {
-    connect(&listener, &QTcpServer::newConnection, this, [this] {
-      while (listener.hasPendingConnections()) {
-        auto *s = listener.nextPendingConnection();
-
-        if (clients.size() >= 100) {
-          s->disconnectFromHost();
-          s->deleteLater();
-          continue;
+        if (channelName.isEmpty())
+        {
+            return;
         }
 
-        clients.insert(s, QString());
-        s->setReadBufferSize(16384);
+        Channel* channel = findChannel(channelName);
 
-        connect(s, &QTcpSocket::readyRead, this,
-                [this, s] { receive(s); });
-
-        connect(s, &QTcpSocket::disconnected, this, [this, s] {
-          // Authentication owns User objects; do not delete them here.
-          User *user = authenticatedUsers.take(s);
-
-          if (user != nullptr) {
-            authentication.logout(user);
-          }
-
-          const QString name = clients.take(s);
-
-          if (!name.isEmpty()) {
-            log("LEAVE " + name);
-
-            broadcast({
-                {"type", "notice"},
-                {"text", name + " left the server."}
-            });
-
-            announceRoster();
-          }
-
-          s->deleteLater();
-        });
-
-        // Require a login or registration attempt within 30 seconds.
-        QTimer::singleShot(30000, s, [this, s] {
-          if (clients.contains(s) &&
-              clients.value(s).isEmpty()) {
-            s->disconnectFromHost();
-          }
-        });
-      }
-    });
-  }
-
-  bool start(const QHostAddress &host, quint16 port) {
-    if (!listener.listen(host, port)) {
-      log("Cannot listen: " + listener.errorString());
-      return false;
+        if (channel != nullptr)
+        {
+            channel->removeMember(s);
+        }
     }
 
-    log(QString("Listening on %1:%2")
-        .arg(host.toString())
-        .arg(listener.serverPort()));
+    // Join a channel
+    void joinChannel(QTcpSocket* s, const QString& requestedName)
+    {
+        QString name = requestedName.trimmed().toLower();
 
-    log("Online (0). Ctrl+C stops the server.");
-    return true;
-  }
+        Channel* channel = findChannel(name);
+
+        if (channel == nullptr)
+        {
+            error(s, "That channel does not exist.");
+            return;
+        }
+
+        if (currentChannels.value(s) == name)
+        {
+            send(s, {
+                {"type", "channel_joined"},
+                {"name", channel->getName()},
+                {"text", "You are already in this channel."}
+            });
+
+            return;
+        }
+
+        leaveCurrentChannel(s);
+
+        if (!channel->addMember(s))
+        {
+            error(s, "Could not join that channel.");
+            return;
+        }
+
+        currentChannels.insert(s, name);
+
+        send(s, {
+            {"type", "channel_joined"},
+            {"id", channel->getChannelID()},
+            {"name", channel->getName()},
+            {"text", "Joined #" + channel->getName()}
+        });
+
+        // Send recent messages
+        const auto history = channel->getMessageHistory();
+
+        for (const QJsonObject& message : history)
+        {
+            send(s, message);
+        }
+
+        log(clients.value(s) + " joined #" + name);
+    }
+
+    // Create a new channel
+    void createChannel(
+        QTcpSocket* s,
+        const QString& requestedName
+    )
+    {
+        QString name = requestedName.trimmed().toLower();
+
+        if (!QRegularExpression(
+                "^[A-Za-z0-9_-]{1,24}$"
+            ).match(requestedName.trimmed()).hasMatch())
+        {
+            error(s,
+                "Channel names must contain 1-24 letters, "
+                "numbers, underscores or hyphens.");
+
+            return;
+        }
+
+        if (channels.contains(name))
+        {
+            error(s, "A channel with that name already exists.");
+            return;
+        }
+
+        QString id = QString::number(nextChannelID++);
+
+        Channel* channel = new Channel(id, name);
+
+        channels.insert(name, channel);
+
+        send(s, {
+            {"type", "channel_created"},
+            {"id", id},
+            {"name", name},
+            {"text", "Channel #" + name + " created."}
+        });
+
+        log("CHANNEL CREATED: #" + name);
+
+        // Automatically join the creator
+        joinChannel(s, name);
+
+        sendChannels(s);
+    }
+
+    // Handle channel commands
+    bool handleChannelCommand(
+        QTcpSocket* s,
+        const QJsonObject& m,
+        const QString& type
+    )
+    {
+        if (type == "channels")
+        {
+            sendChannels(s);
+            return true;
+        }
+
+        if (type == "create_channel")
+        {
+            createChannel(s, m["name"].toString());
+            return true;
+        }
+
+        if (type == "join_channel")
+        {
+            joinChannel(s, m["name"].toString());
+            return true;
+        }
+
+        if (type == "leave_channel")
+        {
+            leaveCurrentChannel(s);
+
+            send(s, {
+                {"type", "channel_left"},
+                {"text", "You left the channel."}
+            });
+
+            return true;
+        }
+
+        return false;
+    }
+
+    
+    void handle(QTcpSocket* s, const QJsonObject& m)
+    {
+        const QString type = m["type"].toString();
+
+        // Registration and login before authentication
+        if (!authenticatedUsers.contains(s))
+        {
+            if (type == "register")
+            {
+                QString name = m["username"].toString();
+                QString email = m["email"].toString();
+                QString password = m["password"].toString();
+
+                if (!QRegularExpression(
+                        "^[A-Za-z0-9_-]{1,24}$"
+                    ).match(name).hasMatch())
+                {
+                    error(s, "Invalid username.");
+                    return;
+                }
+
+                if (email.trimmed().isEmpty() ||
+                    password.isEmpty() ||
+                    password.size() > 1024)
+                {
+                    error(s, "Email and password are required.");
+                    return;
+                }
+
+                try
+                {
+                    User* user = authentication.registerUser(
+                        name.toStdString(),
+                        email.toStdString(),
+                        password.toStdString()
+                    );
+
+                    if (user == nullptr)
+                    {
+                        error(s,
+                            "Username or email is already registered.");
+                        return;
+                    }
+
+                    send(s, {
+                        {"type", "notice"},
+                        {"text",
+                         "Registration successful. Please log in."}
+                    });
+
+                    log("REGISTER " + name);
+                }
+                catch (const std::exception& e)
+                {
+                    log(QString("Registration failed: %1")
+                        .arg(e.what()));
+
+                    error(s, "Registration failed.");
+                }
+
+                return;
+            }
+
+            if (type == "login")
+            {
+                QString name = m["username"].toString();
+                QString password = m["password"].toString();
+
+                if (name.isEmpty() ||
+                    password.isEmpty() ||
+                    password.size() > 1024)
+                {
+                    error(s,
+                        "Username and password are required.");
+                    return;
+                }
+
+                User* candidate =
+                    authentication.findUserByUsername(
+                        name.toStdString()
+                    );
+
+                if (candidate == nullptr ||
+                    candidate->isBanned() ||
+                    !candidate->verifyPassword(password.toStdString()))
+                {
+                    error(s, "Invalid username or password.");
+                    return;
+                }
+
+                // Prevent duplicate connections
+                for (auto it = authenticatedUsers.cbegin();
+                     it != authenticatedUsers.cend(); ++it)
+                {
+                    if (it.value() == candidate)
+                    {
+                        error(s,
+                            "This account is already connected.");
+                        return;
+                    }
+                }
+
+                User* user = authentication.login(
+                    name.toStdString(),
+                    password.toStdString()
+                );
+
+                if (user == nullptr)
+                {
+                    error(s, "Invalid username or password.");
+                    return;
+                }
+
+                authenticatedUsers.insert(s, user);
+
+                clients[s] =
+                    QString::fromStdString(user->getUsername());
+
+                const QString loggedInName = clients.value(s);
+
+                send(s, {
+                    {"type", "welcome"},
+                    {"name", loggedInName},
+                    {"text",
+                     "Login successful. Welcome to the lobby."}
+                });
+
+                broadcast({
+                    {"type", "notice"},
+                    {"text", loggedInName + " joined the server."}
+                });
+
+                log("LOGIN " + loggedInName +
+                    " from " + s->peerAddress().toString());
+
+                // Every user starts in general
+                joinChannel(s, "general");
+
+                announceRoster();
+                return;
+            }
+
+            error(s, "Please register or log in first.");
+            return;
+        }
+
+        // Authenticated commands
+        if (handleChannelCommand(s, m, type))
+        {
+            return;
+        }
+
+        if (type == "users")
+        {
+            send(s, roster());
+        }
+        else if (type == "chat")
+        {
+            QString message = m["text"].toString().trimmed();
+
+            if (message.isEmpty() ||
+                message.size() > 2000 ||
+                message.contains('\n') ||
+                message.contains('\r'))
+            {
+                error(s,
+                    "Send a single line of 1-2000 characters.");
+                return;
+            }
+
+            QString channelName = currentChannels.value(s);
+
+            if (channelName.isEmpty())
+            {
+                error(s,
+                    "Join a channel before sending messages.");
+                return;
+            }
+
+            Channel* channel = findChannel(channelName);
+
+            if (channel == nullptr ||
+                !channel->hasMember(s))
+            {
+                error(s,
+                    "You are not a member of this channel.");
+                return;
+            }
+
+            QJsonObject chatMessage{
+                {"type", "chat"},
+                {"name", clients.value(s)},
+                {"text", message},
+                {"channel", channel->getName()}
+            };
+
+            channel->addMessage(chatMessage);
+            channel->broadcast(chatMessage);
+        }
+        else
+        {
+            error(s, "Unknown command.");
+        }
+    }
+
+    void receive(QTcpSocket* s)
+    {
+        while (s->canReadLine())
+        {
+            QByteArray line = s->readLine(maxFrame + 1);
+
+            if (!line.endsWith('\n') ||
+                line.size() > maxFrame)
+            {
+                error(s, "Message too large.");
+                s->disconnectFromHost();
+                return;
+            }
+
+            QJsonParseError parse;
+
+            auto doc = QJsonDocument::fromJson(line, &parse);
+
+            if (parse.error != QJsonParseError::NoError ||
+                !doc.isObject())
+            {
+                error(s, "Expected a JSON object.");
+                continue;
+            }
+
+            handle(s, doc.object());
+
+            if (s->state() != QAbstractSocket::ConnectedState)
+            {
+                return;
+            }
+        }
+
+        if (s->bytesAvailable() >= maxFrame)
+        {
+            error(s, "Message too large.");
+            s->disconnectFromHost();
+        }
+    }
+
+    
+public:
+
+    ChatServer()
+    {
+        // Create the default channel
+        Channel* general = new Channel("1", "general");
+
+        channels.insert("general", general);
+        nextChannelID = 2;
+
+        log("Created default channel: #general");
+
+        connect(&listener, &QTcpServer::newConnection,
+                this, [this]
+        {
+            while (listener.hasPendingConnections())
+            {
+                auto* s = listener.nextPendingConnection();
+
+                if (clients.size() >= 100)
+                {
+                    s->disconnectFromHost();
+                    s->deleteLater();
+                    continue;
+                }
+
+                clients.insert(s, QString());
+                s->setReadBufferSize(16384);
+
+                connect(s, &QTcpSocket::readyRead,
+                        this, [this, s]
+                {
+                    receive(s);
+                });
+
+                connect(s, &QTcpSocket::disconnected,
+                        this, [this, s]
+                {
+                    // Remove from channel
+                    leaveCurrentChannel(s);
+
+                    User* user = authenticatedUsers.take(s);
+
+                    if (user != nullptr)
+                    {
+                        authentication.logout(user);
+                    }
+
+                    const QString name = clients.take(s);
+
+                    if (!name.isEmpty())
+                    {
+                        log("LEAVE " + name);
+
+                        broadcast({
+                            {"type", "notice"},
+                            {"text", name + " left the server."}
+                        });
+
+                        announceRoster();
+                    }
+
+                    s->deleteLater();
+                });
+
+                // Require login within 30 seconds
+                QTimer::singleShot(30000, s, [this, s]
+                {
+                    if (clients.contains(s) &&
+                        clients.value(s).isEmpty())
+                    {
+                        s->disconnectFromHost();
+                    }
+                });
+            }
+        });
+    }
+
+    ~ChatServer() override
+    {
+        qDeleteAll(channels);
+        channels.clear();
+    }
+
+    bool start(const QHostAddress& host, quint16 port)
+    {
+        if (!listener.listen(host, port))
+        {
+            log("Cannot listen: " + listener.errorString());
+            return false;
+        }
+
+        log(QString("Listening on %1:%2")
+            .arg(host.toString())
+            .arg(listener.serverPort()));
+
+        log("Online (0). Ctrl+C stops the server.");
+
+        return true;
+    }
 };
 
-int main(int argc, char **argv) {
-  QCoreApplication app(argc, argv);
+int main(int argc, char** argv)
+{
+    QCoreApplication app(argc, argv);
 
-  const auto args = app.arguments();
-  bool ok = true;
+    const auto args = app.arguments();
 
-  int port = args.size() > 1 ? args[1].toInt(&ok) : 5050;
-  QHostAddress host(args.size() > 2 ? args[2] : "127.0.0.1");
+    bool ok = true;
 
-  if (!ok || port < 1 || port > 65535 ||
-      host.isNull() || args.size() > 3) {
-    QTextStream(stderr)
-        << "Usage: chat_server [port=5050] "
-           "[bind-address=127.0.0.1]\n";
-    return 1;
-  }
+    int port = args.size() > 1
+        ? args[1].toInt(&ok)
+        : 5050;
 
-  ChatServer server;
+    QHostAddress host(
+        args.size() > 2 ? args[2] : "127.0.0.1"
+    );
 
-  if (!server.start(host, static_cast<quint16>(port))) return 1;
+    if (!ok ||
+        port < 1 ||
+        port > 65535 ||
+        host.isNull() ||
+        args.size() > 3)
+    {
+        QTextStream(stderr)
+            << "Usage: chat_server [port=5050] "
+               "[bind-address=127.0.0.1]\n";
 
-  return app.exec();
+        return 1;
+    }
+
+    ChatServer server;
+
+    if (!server.start(host, static_cast<quint16>(port)))
+    {
+        return 1;
+    }
+
+    return app.exec();
 }
+
